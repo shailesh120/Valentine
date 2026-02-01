@@ -2,8 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Will you be my Valentine? 💘</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Disha, will you be my Valentine? 💘</title>
+
   <style>
     :root{
       --bg1:#ffdde1;
@@ -12,8 +13,11 @@
       --text:#2b2b2b;
       --yes:#22c55e;
       --no:#ef4444;
+      --shadow: 0 18px 50px rgba(0,0,0,0.15);
+      --radius: 24px;
     }
     *{ box-sizing:border-box; }
+    html, body { height:100%; }
     body{
       margin:0;
       min-height:100vh;
@@ -23,25 +27,169 @@
       background: radial-gradient(circle at top, var(--bg1), var(--bg2));
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
       color:var(--text);
-      overflow:hidden;
+      overflow-x:hidden;
+      padding:
+        max(16px, env(safe-area-inset-top))
+        max(16px, env(safe-area-inset-right))
+        max(16px, env(safe-area-inset-bottom))
+        max(16px, env(safe-area-inset-left));
     }
+
+    /* Layout wrapper */
     .wrap{
-      width:min(520px, 92vw);
-      padding:18px;
+      width:min(980px, 96vw);
+      display:grid;
+      gap:16px;
+      align-items:center;
+      justify-items:center;
+      grid-template-columns: 1fr;
     }
+
+    /* Photo placeholders grid around the card */
+    .frame{
+      width:100%;
+      display:grid;
+      gap:14px;
+      grid-template-columns: 1fr;
+      align-items:center;
+      justify-items:center;
+    }
+
+    .photos{
+      width:100%;
+      display:grid;
+      gap:12px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .photo-slot{
+        background: rgba(255,255,255,0.55);
+        border: 1px dashed rgba(0,0,0,0.16);
+        border-radius: 18px;
+        overflow:hidden;
+        position:relative;
+        box-shadow: 0 10px 24px rgba(0,0,0,0.08);
+
+        /* was: aspect-ratio: 1 / 1; */
+        aspect-ratio: 4 / 5;      /* taller */
+        max-height: 340px;        /* optional cap on desktop */
+    }
+
+    .photo-slot img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+      /* object-position: top; */ 
+    }
+
+    .photo-slot .label{
+        position:absolute;
+        left:50%;
+        bottom:10px;
+        transform: translateX(-50%);
+        
+        padding:8px 14px;
+        border-radius:999px;
+
+        background: rgba(255,255,255,0.4); /* more see-through */
+        backdrop-filter: blur(6px);
+
+        font-size:12px;
+        color: rgba(0,0,0,0.7);
+
+        border: 1px solid rgba(0,0,0,0.06);
+        text-align:center;
+        white-space: nowrap;
+
+        pointer-events:none;
+    }
+
+    /* Tilt photos on desktop only */
+@media (min-width: 900px){
+  .photo-slot{
+    transition: transform 220ms ease, box-shadow 220ms ease;
+  }
+
+  /* Alternate tilt directions */
+  .photos .photo-slot:nth-child(odd){
+    transform: rotate(-2.5deg);
+  }
+  .photos .photo-slot:nth-child(even){
+    transform: rotate(2.5deg);
+  }
+
+  /* Gentle lift on hover */
+  .photo-slot:hover{
+    transform: rotate(0deg) scale(1.03);
+    box-shadow: 0 18px 36px rgba(0,0,0,0.18);
+    z-index: 2;
+  }
+}
+
+/* Initial wiggle (plays once) */
+@keyframes wiggleIn {
+  0%   { transform: rotate(0deg) scale(0.98); }
+  25%  { transform: rotate(-4deg) scale(1.00); }
+  50%  { transform: rotate(4deg)  scale(1.02); }
+  75%  { transform: rotate(-2deg) scale(1.01); }
+  100% { transform: rotate(var(--tilt, 0deg)) scale(1.00); }
+}
+
+/* Super subtle idle wiggle */
+@keyframes idleWiggle {
+  0%   { transform: rotate(calc(var(--tilt) - 1.6deg)); }
+  50%  { transform: rotate(calc(var(--tilt) + 1.6deg)); }
+  100% { transform: rotate(calc(var(--tilt) - 1.6deg)); }
+}
+
+/* Desktop-only behavior */
+@media (min-width: 900px){
+  .photo-slot{
+    transform-origin: center;
+    will-change: transform;
+    animation:
+      wiggleIn 650ms ease both,
+      idleWiggle 1s ease-in-out infinite;
+    transition: transform 220ms ease, box-shadow 220ms ease;
+  }
+
+  /* Alternate base tilt */
+  .photos .photo-slot:nth-child(odd){
+    --tilt: -2.5deg;
+    animation-delay: 80ms, 800ms; /* idle starts after initial */
+  }
+  .photos .photo-slot:nth-child(even){
+    --tilt: 2.5deg;
+    animation-delay: 180ms, 900ms;
+  }
+
+  /* Pause the idle wiggle on hover */
+  .photo-slot:hover{
+    animation-play-state: paused;
+    transform: rotate(0deg) scale(1.03);
+    box-shadow: 0 18px 36px rgba(0,0,0,0.18);
+    z-index: 2;
+  }
+}
+
+    /* Main card */
     .card{
+      width:min(520px, 96vw);
       background:var(--card);
       backdrop-filter: blur(10px);
-      border:1px solid rgba(255,255,255,0.5);
-      border-radius:24px;
-      padding:22px;
-      box-shadow: 0 18px 50px rgba(0,0,0,0.15);
+      border:1px solid rgba(255,255,255,0.55);
+      border-radius:var(--radius);
+      padding:18px;
+      box-shadow: var(--shadow);
       text-align:center;
       position:relative;
+      overflow:hidden;
     }
+
     h1{
       margin:10px 0 8px;
-      font-size: clamp(26px, 4.5vw, 38px);
+      font-size: clamp(26px, 5.2vw, 40px);
       line-height:1.1;
     }
     p{
@@ -49,6 +197,7 @@
       font-size: 16px;
       opacity:.9;
     }
+
     .media{
       width:100%;
       border-radius:20px;
@@ -61,14 +210,26 @@
       width:100%;
       height:auto;
     }
-    .btnRow{
-      display:flex;
-      gap:12px;
-      justify-content:center;
-      align-items:center;
-      margin-top:16px;
-      flex-wrap:wrap;
+
+    /* Buttons */
+    .btnCol{
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+    align-items:center;
+    margin-top:16px;
     }
+
+    .yes, .no{
+    width:min(460px, 92%);
+    max-width:92%;
+    }
+
+    .yes{
+    font-weight:800;
+    letter-spacing:0.5px;
+    }
+
     button{
       border:none;
       border-radius:999px;
@@ -79,23 +240,33 @@
       box-shadow: 0 10px 20px rgba(0,0,0,0.12);
       user-select:none;
       -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      max-width: 100%;
     }
     button:active{ transform: scale(0.98); }
+
     .yes{
       background: var(--yes);
       color:white;
-      min-width:140px;
-      position:relative;
-      z-index:2;
+      min-width: 160px;
     }
     .no{
       background: white;
       color: var(--no);
       border: 2px solid rgba(239,68,68,0.45);
-      min-width:140px;
-      position:relative;
-      z-index:1;
+      min-width: 160px;
     }
+
+    /* We scale with transform, but reserve space by adding a wrapper that grows */
+    .yesWrap{
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      /* This helps avoid collisions by giving the scaled button room */
+      padding: 6px 0;
+      width: 100%;
+    }
+
     .hint{
       margin-top:12px;
       font-size:13px;
@@ -127,10 +298,10 @@
     }
     .celebrate h2{
       margin:0 0 10px;
-      font-size: clamp(28px, 5vw, 46px);
+      font-size: clamp(28px, 6vw, 48px);
     }
     .celebrate .big{
-      font-size: clamp(18px, 3.2vw, 22px);
+      font-size: clamp(18px, 3.6vw, 22px);
       margin-bottom:14px;
     }
     .badge{
@@ -149,6 +320,7 @@
       font-size:15px;
       box-shadow:none;
     }
+
     #confetti{
       position:fixed;
       inset:0;
@@ -158,7 +330,7 @@
     }
     #confetti.show{ display:block; }
 
-    /* little floating hearts */
+    /* Floating hearts */
     .heart{
       position:absolute;
       width:14px;
@@ -168,6 +340,7 @@
       border-radius: 3px;
       animation: floatUp 6s linear infinite;
       filter: blur(0.2px);
+      pointer-events:none;
     }
     .heart::before, .heart::after{
       content:"";
@@ -185,38 +358,85 @@
       10%{ opacity:1; }
       100%{ transform: translateY(-520px) rotate(45deg); opacity:0; }
     }
+
+    /* Desktop layout: photos around card */
+    @media (min-width: 900px){
+      .frame{
+        grid-template-columns: 1fr auto 1fr;
+        align-items:start;
+      }
+      .photos{
+        grid-template-columns: 1fr;
+        width: 240px;
+      }
+      .card{
+        width: 520px;
+      }
+    }
   </style>
 </head>
+
 <body>
   <canvas id="confetti"></canvas>
 
   <div class="wrap">
-    <div class="card" id="card">
-      <div class="media">
-        <!-- Replace the src with any GIF you like -->
-        <img
-          src="https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif"
-          alt="Cute gif"
-        />
+    <div class="frame">
+
+      <!-- LEFT photos -->
+      <div class="photos">
+        <div class="photo-slot">
+          <!-- Replace src with your own image later -->
+          <img src="photos/disha1.jpeg" alt="Photo 1"> 
+          <div class="label">Never leaving your side (literally)</div>
+        </div>
+        <div class="photo-slot">
+          <img src="photos/disha2.jpeg" alt="Photo 2">
+          <div class="label">Disha HOT</div>
+        </div>
       </div>
 
-      <h1 id="title">Will you be my Valentine? 💘</h1>
-      <p id="subtitle">I have a very important question…</p>
+      <!-- MAIN card -->
+      <div class="card" id="card">
+        <div class="media">
+          <!-- Replace with any GIF you like -->
+          <img
+            src="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExcDkzZ2R0ZWxpNzZnbW44cG44Yzdxbzh5Mmh4MHF5NHRnMmxrY2Q2cSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/auGFCmg6rM0eI/giphy.gif"
+            alt="Cute gif"
+          />
+        </div>
 
-      <div class="btnRow">
-        <button class="yes" id="yesBtn">YES 💖</button>
-        <button class="no" id="noBtn">No 😅</button>
+        <h1 id="title">Hi Princess, will you be my Valentine? 💘</h1>
+        <p id="subtitle">It's a very VERY important question…</p>
+
+        <div class="btnCol" id="btnCol">
+            <button class="yes" id="yesBtn">YES 💖</button>
+            <button class="no" id="noBtn">No 😅</button>
+        </div>
+
+        <div class="hint" id="hint">Tip: try pressing “No” (if you dare).</div>
       </div>
 
-      <div class="hint" id="hint">Tip: try pressing “No” (if you dare).</div>
+      <!-- RIGHT photos -->
+      <div class="photos">
+        <div class="photo-slot">
+          <img src="photos/disha3.jpeg" alt="Photo 3">
+          <div class="label">How you're always gonna look w/ me :)</div>
+        </div>
+        <div class="photo-slot">
+          <img src="photos/disha4.jpeg" alt="Photo 4">
+          <div class="label">Love you ;)</div>
+        </div>
+      </div>
+
     </div>
   </div>
 
   <div class="overlay" id="overlay" aria-hidden="true">
     <div class="celebrate">
-      <h2>YAYYYYY!! 🥳💘</h2>
-      <div class="big">I knew you’d say yes 😭❤️</div>
-      <div class="badge">Happy Valentine’s Day 💞</div>
+      <h2>LES GOOO DISHA!! 🥳💘</h2>
+      <div class="big">You just made me the happiest person ever 😭❤️</div>
+      <div class="big">And I'm gonna make you so happy too ❤️</div>
+      <div class="badge">See you on Valentine’s Day 💞</div>
       <br/>
       <button class="smallbtn" id="replayBtn">Replay</button>
     </div>
@@ -229,20 +449,21 @@
     const replayBtn = document.getElementById("replayBtn");
     const card = document.getElementById("card");
     const hint = document.getElementById("hint");
+    const btnRow = document.getElementById("btnRow");
+    const yesWrap = document.getElementById("yesWrap");
 
-    // Change these phrases to whatever fits your vibe
+    // NO phrases (edit these however you want)
     const noPhrases = [
       "No 😅",
-      "Are you sure? 🥺",
+      "Are you sure, Disha? 🥺",
       "Really sure?? 😭",
-      "Baby pls 😔",
-      "Don’t do me like this 😢",
+      "Bae pls 😔",
       "I’ll be so sad 💔",
       "Ok but… think again 🙃",
       "Last chance 😳",
       "You’re breaking my heart 😩",
-      "Fine… but I’m still asking 😤",
-      "NO isn’t an option 😈",
+      "What is this behavior...",
+      "Click yes or this counts in the SHISHA Laws...",
       "Just click YES 😌"
     ];
 
@@ -250,18 +471,29 @@
     let yesScale = 1;
 
     function setYesScale(scale){
-      yesBtn.style.transform = `scale(${scale})`;
-      yesBtn.style.boxShadow = `0 14px 28px rgba(34,197,94,0.28)`;
-      yesBtn.style.filter = `brightness(${Math.min(1.1, 1 + (scale-1)*0.05)})`;
+        // scale ranges ~1 to 4
+        const s = Math.max(1, Math.min(4, scale));
+
+        // grow size by changing actual layout properties
+        const fontSize = 18 + (s - 1) * 10;      // 18px -> up to ~48px
+        const padY = 14 + (s - 1) * 10;          // 14 -> up to ~44
+        const padX = 22 + (s - 1) * 18;          // 22 -> up to ~76
+        const minH = 52 + (s - 1) * 26;          // keeps it chunky
+
+        yesBtn.style.fontSize = fontSize + "px";
+        yesBtn.style.padding = `${padY}px ${padX}px`;
+        yesBtn.style.minHeight = minH + "px";
+
+        yesBtn.style.boxShadow = `0 14px 28px rgba(34,197,94,0.28)`;
+        yesBtn.style.filter = `brightness(${Math.min(1.12, 1 + (s-1)*0.05)})`;
     }
 
     function spawnHearts(){
-      // subtle hearts behind the card
       for(let i=0;i<8;i++){
         const h = document.createElement("div");
         h.className = "heart";
         const left = Math.random()*100;
-        const delay = Math.random()*2.5;
+        const delay = Math.random()*2.0;
         const dur = 4 + Math.random()*4;
         h.style.left = left + "%";
         h.style.bottom = "-10px";
@@ -275,16 +507,17 @@
 
     noBtn.addEventListener("click", () => {
       noCount++;
-      // make YES button bigger each time
-      yesScale = Math.min(4.2, 1 + noCount * 0.18);
+
+      // YES grows
+      yesScale = Math.min(4.0, 1 + noCount * 0.18);
       setYesScale(yesScale);
 
-      // cycle NO phrases
+      // NO phrase changes
       const phrase = noPhrases[Math.min(noCount, noPhrases.length - 1)];
       noBtn.textContent = phrase;
 
-      // optional: make NO button slightly smaller each time (adds comedy)
-      const noScale = Math.max(0.72, 1 - noCount * 0.03);
+      // Optional: NO button gets a bit smaller (funny)
+      const noScale = Math.max(0.76, 1 - noCount * 0.03);
       noBtn.style.transform = `scale(${noScale})`;
 
       hint.textContent = "Ok ok… now press YES 😌";
@@ -299,6 +532,7 @@
       overlay.classList.remove("show");
       overlay.setAttribute("aria-hidden", "true");
       stopConfetti();
+
       // reset
       noCount = 0;
       yesScale = 1;
@@ -306,6 +540,7 @@
       noBtn.textContent = "No 😅";
       noBtn.style.transform = "scale(1)";
       hint.textContent = "Tip: try pressing “No” (if you dare).";
+      yesWrap.style.paddingBottom = "6px";
     });
 
     // Confetti
@@ -333,7 +568,6 @@
         vy: 2 + Math.random()*5,
         rot: Math.random()*Math.PI,
         vr: -0.2 + Math.random()*0.4,
-        // random bright-ish color
         color: `hsl(${Math.floor(Math.random()*360)}, 90%, 60%)`,
         life: 0
       };
@@ -349,9 +583,8 @@
           p.x += p.vx;
           p.y += p.vy;
           p.rot += p.vr;
-          // gentle sway
           p.vx += Math.sin((p.life/40)) * 0.01;
-          // wrap
+
           if(p.y > window.innerHeight + 40) {
             p.y = -20;
             p.x = Math.random() * window.innerWidth;
