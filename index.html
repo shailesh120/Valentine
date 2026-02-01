@@ -27,13 +27,24 @@
       background: radial-gradient(circle at top, var(--bg1), var(--bg2));
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
       color:var(--text);
-      overflow-x:hidden;
+      overflow-x: hidden;
+      overflow-y: auto;
       padding:
         max(16px, env(safe-area-inset-top))
         max(16px, env(safe-area-inset-right))
         max(16px, env(safe-area-inset-bottom))
         max(16px, env(safe-area-inset-left));
     }
+
+    @media (max-width: 899px){
+      body{
+        align-items: flex-start;   /* stop vertical centering on short screens */
+      }
+      .wrap{
+        margin-top: 10px;          /* tiny breathing room */
+      }
+    }
+
 
     /* Layout wrapper */
     .wrap{
