@@ -62,26 +62,31 @@
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-    .photo-slot{
-        background: rgba(255,255,255,0.55);
-        border: 1px dashed rgba(0,0,0,0.16);
-        border-radius: 18px;
-        overflow:hidden;
-        position:relative;
-        box-shadow: 0 10px 24px rgba(0,0,0,0.08);
+.photo-slot{
+  background: rgba(255,255,255,0.55);
+  border: 1px dashed rgba(0,0,0,0.16);
+  border-radius: 18px;
+  overflow:hidden;
+  position:relative;
+  box-shadow: 0 10px 24px rgba(0,0,0,0.08);
 
-        /* was: aspect-ratio: 1 / 1; */
-        aspect-ratio: 4 / 5;      /* taller */
-        max-height: 340px;        /* optional cap on desktop */
-    }
+  /* Taller so portrait iPhone pics fit better */
+  aspect-ratio: 3 / 4;      /* try 4/5 if you want even taller */
+}
 
-    .photo-slot img{
-      width:100%;
-      height:100%;
-      object-fit:cover;
-      display:block;
-      /* object-position: top; */ 
-    }
+/* IMPORTANT: keep the TOP of the photo visible */
+.photo-slot img{
+  width:100%;
+  height:100%;
+  object-fit: cover;
+  object-position: top center;  /* this is the key */
+  display:block;
+}
+
+/* If you added a max-height before, remove it on mobile */
+@media (max-width: 899px){
+  .photo-slot{ max-height: none; }
+}
 
     .photo-slot .label{
         position:absolute;
@@ -127,7 +132,6 @@
   }
 }
 
-/* Initial wiggle (plays once) */
 @keyframes wiggleIn {
   0%   { transform: rotate(0deg) scale(0.98); }
   25%  { transform: rotate(-4deg) scale(1.00); }
@@ -136,35 +140,37 @@
   100% { transform: rotate(var(--tilt, 0deg)) scale(1.00); }
 }
 
-/* Super subtle idle wiggle */
+/* Faster + more noticeable idle wiggle */
 @keyframes idleWiggle {
-  0%   { transform: rotate(calc(var(--tilt) - 1.6deg)); }
-  50%  { transform: rotate(calc(var(--tilt) + 1.6deg)); }
-  100% { transform: rotate(calc(var(--tilt) - 1.6deg)); }
+  0%   { transform: rotate(calc(var(--tilt) - 1.4deg)); }
+  50%  { transform: rotate(calc(var(--tilt) + 1.4deg)); }
+  100% { transform: rotate(calc(var(--tilt) - 1.4deg)); }
 }
 
-/* Desktop-only behavior */
+/* Apply wiggle everywhere (phone + desktop) */
+.photo-slot{
+  transform-origin: center;
+  will-change: transform;
+  animation:
+    wiggleIn 650ms ease both,
+    idleWiggle 1.2s ease-in-out infinite;
+}
+
+/* Alternate base tilt */
+.photos .photo-slot:nth-child(odd){  --tilt: -2.5deg; }
+.photos .photo-slot:nth-child(even){ --tilt:  2.5deg; }
+
+/* Stagger so they don’t move in sync */
+.photos .photo-slot:nth-child(1){ animation-delay: 80ms, 800ms; }
+.photos .photo-slot:nth-child(2){ animation-delay: 180ms, 900ms; }
+.photos .photo-slot:nth-child(3){ animation-delay: 280ms, 1000ms; }
+.photos .photo-slot:nth-child(4){ animation-delay: 380ms, 1100ms; }
+
+/* Keep hover polish on desktop only */
 @media (min-width: 900px){
   .photo-slot{
-    transform-origin: center;
-    will-change: transform;
-    animation:
-      wiggleIn 650ms ease both,
-      idleWiggle 1s ease-in-out infinite;
     transition: transform 220ms ease, box-shadow 220ms ease;
   }
-
-  /* Alternate base tilt */
-  .photos .photo-slot:nth-child(odd){
-    --tilt: -2.5deg;
-    animation-delay: 80ms, 800ms; /* idle starts after initial */
-  }
-  .photos .photo-slot:nth-child(even){
-    --tilt: 2.5deg;
-    animation-delay: 180ms, 900ms;
-  }
-
-  /* Pause the idle wiggle on hover */
   .photo-slot:hover{
     animation-play-state: paused;
     transform: rotate(0deg) scale(1.03);
